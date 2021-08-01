@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+  server:
+    container_name: chat-app-server
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: chat-app-server
+    restart: always
+    ports:
+      - 5000:5000
+    networks:
+      - app-network
+    volumes:
+      - ./backend/:/usr/app
+      - /usr/app/node_modules
+    environment:
+      - CLIENT=http://localhost:3000
+      - NODE_ENV=development
+    command: nodemon -L
+    stdin_open: true
+    tty: true
+
+  client:
+    container_name: chat-app-client
+    image: chat-app-client
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: npm start
+    volumes:
+      - ./frontend/:/usr/app
+      - /usr/app/node_modules
+    depends_on:
+      - server
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    environment:
+      - REACT_APP_SERVER=http://localhost:5000
+      - CHOKIDAR_USEPOLLING=true
+
+networks:
+    app-network:
+        driver: bridge
+
+volumes:
+    data-volume:
+    node_modules:
+    web-root:
+      driver: local
