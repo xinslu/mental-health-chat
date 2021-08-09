@@ -1,27 +1,38 @@
 import React, { Component, useState } from 'react';
-const ws = new WebSocket('ws://localhost:5000/');
+import io from "socket.io-client";
+
+const socket = io.connect('http://localhost:5000/'
+);
+
+
+socket.on("connect_error", (err) => {
+  console.log('in error')
+  console.log(`connect_error due to ${err}`);
+});
 
 export default class App extends Component{
   constructor(props){
     super(props);
     this.state={
       message: '',
-      users: [],
-      messages: []
+      user: '',
+      message: ''
     }
     this.onTextboxChangeMessage = this.onTextboxChangeMessage.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onTextboxChangeUser = this.onTextboxChangeUser.bind(this);
   }
+
+
   render() {
-    return (
-      <div>
-        <input placeholder="Type Message here" type="text" onChange={this.onTextboxChangeMessage} /><br />
-        <input placeholder="User" type="text" onChange={this.onTextboxChangeUser} /><br />
-        <button type="button" onClick={this.onSubmit}>Submit?</button><br />
-      </div>
-    );
-  }
+      return (
+        <div>
+          <input placeholder="Type Message here" type="text" onChange={this.onTextboxChangeMessage} /><br />
+          <input placeholder="User" type="text" onChange={this.onTextboxChangeUser} /><br />
+          <button type="button" onClick={this.onSubmit}>Submit</button><br />
+        </div>
+      );
+    }
 
   onTextboxChangeMessage(event) {
       this.setState({
@@ -31,27 +42,29 @@ export default class App extends Component{
 
   onTextboxChangeUser(event) {
       this.setState({
-        users: [...this.state.users,event.target.value]
+        user: event.target.value
       });
   }
 
   onSubmit(){
-    ws.send(JSON.stringify({
-      type: 'message',
-      user: this.state.users[-1],
+    socket.send(JSON.stringify({
+      time: Date().toLocaleString(),
+      user: this.state.user,
       message: this.state.message
     }))
-  }
-
-
-  componentDidMount(){
-    ws.onopen=()=>{
-      console.log('Web Socket is connected')
-    };
-    ws.onmessage=(message)=>{
-      console.log('in on message')
-      const dataFromServer=JSON.parse(message.data);
-      console.log('got reply',dataFromServer)
-    }
+    console.log('Message Sent')
   }
 }
+
+
+//   componentDidMount(){
+//     socket.onconnection=()=>{
+//       console.log('Web Socket is connected')
+//     };
+//     socket.onmessage=(message)=>{
+//       console.log('in on message in react')
+//       const dataFromServer=JSON.parse(message.data);
+//       console.log('got reply',dataFromServer)
+//     }
+//   }
+// }
