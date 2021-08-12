@@ -24,38 +24,22 @@ client.on("ready", ()=>{
       console.error("Connected to Redis");
 });
 
+io.on('disconnect', function () {
+    socket.removeAllListeners()
+    console.log('a user disconnected')
+    socket.close()
+})
 
-// app.ws('/', (ws, req) => {
-//   console.log('websocket connection');
-//   ws.on('request', function(request) {
-//     console.log('in request')
-//     console.log(request.origin)
-//   })
-//   ws.on('message',function(message){
-//     client.on("error", function(error) {
-//       console.error(error);
-//     });
-//     console.log(message)
-//   })
-//   console.log('sending to client')
-//   ws.send(request)
-//   client.on("error", function(error) {
-//     console.error(error);
-//   });
-// });
 
 io.on("connection", (socket) => {
     console.log('a user connected')
     socket.on("message", (message) => {
+        console.log('in message')
         console.log(message)
-        io.emit('message', message);
+        io.emit('send message', JSON.parse(message));
     });
 });
 
-app.get("/chat", (req, res) => {
-    const username = req.query.username;
-    io.emit("joined", username);
-});
 
 
 server.listen(5000, () =>
