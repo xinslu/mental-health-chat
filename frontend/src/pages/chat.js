@@ -1,41 +1,41 @@
 import io from "socket.io-client";
 import React, { Component, useState } from 'react';
 import 'bulma/css/bulma.min.css';
+import {Redirect} from "react-router-dom"
 const socket = io.connect('http://localhost:5000/');
 
 socket.on('disconnect', function () {
+  console.log("in disconnect")
   socket.removeAllListeners('connect')
   socket.removeAllListeners('message')
   socket.removeAllListeners('disconnect')
   socket.removeAllListeners('send message')
   socket.close()
-  console.log('a user disconnected')
 })
 
 export default class chat extends Component{
   constructor(props){
     super(props);
     this.state={
-      message: '',
-      user: '',
+      user: (this.props.location.state!=undefined) ? this.props.location.state.user : "" ,
       message: '',
       messages: []
     }
     this.onTextboxChangeMessage = this.onTextboxChangeMessage.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
-    this.onTextboxChangeUser = this.onTextboxChangeUser.bind(this);
   }
 
   render() {
+    if (this.state.user){
       return (
         <div>
-          <input placeholder="Type Message here" type="text" onChange={this.onTextboxChangeMessage} /><br />
-          <input placeholder="User" type="text" onChange={this.onTextboxChangeUser} /><br />
-          <button type="submit" onClick={this.onSubmit}>Submit</button><br />
+          <input className="input" placeholder="Type Message here" type="text" onChange={this.onTextboxChangeMessage} style={{position:"fixed", bottom:`2px`, width: `90%`, height: `5%`}}/><br />
+          <button type="submit" onClick={this.onSubmit} className="button" style={{position:"fixed", bottom:`2px`, left: `90%`, width: `10%`, height: `5%`}}><i className="fas fa-angle-right" /></button><br />
           {this.state.messages.map((message, i) => (
-          <div style={{heigth: '100%', width: '100%' }}>
-            <p style={{textAlign: (message.user==="kinshuk") ? 'left' : 'right'}}>
-              <span className={(message.user==="kinshuk")? ("tag is-medium is-info") : ("tag is-medium is-success")} style={{width: "fit-content"}}>
+          <div style={{heigth: '100%', width: '100%', paddingLeft: `1%`, paddingRight: `1%` }}>
+            <p style={{textAlign: (message.user===this.state.user) ? 'left' : 'right'}}>
+            <p className="has-text-weight-light" style={{color: "#CCCCCC", fontSize: `11px`}}>{message.user}</p>
+              <span className={(message.user===this.state.user)? ("tag is-medium is-info") : ("tag is-medium is-success")} style={{width: "fit-content"}}>
                   {message.message}
               </span>
             </p>
@@ -44,6 +44,11 @@ export default class chat extends Component{
           ))}
         </div>
       );
+    }else{
+      console.log("in else rn");
+      return <Redirect to="/" />
+
+    }
     }
 
   onTextboxChangeMessage(event) {
@@ -61,7 +66,7 @@ export default class chat extends Component{
   onSubmit(event){
     event.preventDefault();
     socket.send(JSON.stringify({
-      time: Date().toLocaleString(),
+      time: Date.now(),
       user: this.state.user,
       message: this.state.message
     }))
@@ -69,9 +74,9 @@ export default class chat extends Component{
 
   componentDidMount(){
     socket.on('send message',(message)=>{
-      this.setState({
-        messages: [...this.state.messages,message]
-      })
+        this.setState({
+          messages: [...this.state.messages,message]
+        })
     })
     socket.on("connect_error", (err) => {
       console.log('in error')

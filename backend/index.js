@@ -33,10 +33,22 @@ io.on('disconnect', function () {
 
 io.on("connection", (socket) => {
     console.log('a user connected')
+    client.zrevrangebyscore(["chat", "+inf", "-inf"], function(rangeError, rangeResponse) {
+        if (rangeError) throw rangeError;
+            console.log("response", rangeResponse)
+            rangeResponse.map((chatMessage)=>io.emit("send message",JSON.parse(chatMessage)))
+    });
     socket.on("message", (message) => {
         console.log('in message')
         console.log(message)
-        io.emit('send message', JSON.parse(message));
+        JSONmessage=JSON.parse(message)
+        io.emit('send message', JSONmessage);
+        console.log(JSONmessage.time,message)
+        client.zadd("chat",-JSONmessage.time,message);
+        client.zrevrangebyscore(["chat", "+inf", "-inf"], function(rangeError, rangeResponse) {
+            if (rangeError) throw rangeError;
+            console.log("response", rangeResponse);
+        });
     });
 });
 
