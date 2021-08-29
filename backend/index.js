@@ -26,31 +26,26 @@ client.on("ready", ()=>{
 
 io.on('disconnect', function () {
     socket.removeAllListeners()
-    console.log('a user disconnected')
     socket.close()
 })
 
 
 io.on("connection", (socket) => {
-    console.log('a user connected')
-    client.zrevrangebyscore(["chat", "+inf", "-inf"], function(rangeError, rangeResponse) {
-        if (rangeError) throw rangeError;
-            console.log("response", rangeResponse)
-            rangeResponse.map((chatMessage)=>io.emit("send message",JSON.parse(chatMessage)))
-    });
     socket.on("message", (message) => {
-        console.log('in message')
-        console.log(message)
         JSONmessage=JSON.parse(message)
         io.emit('send message', JSONmessage);
-        console.log(JSONmessage.time,message)
-        client.zadd("chat",-JSONmessage.time,message);
-        client.zrevrangebyscore(["chat", "+inf", "-inf"], function(rangeError, rangeResponse) {
-            if (rangeError) throw rangeError;
-            console.log("response", rangeResponse);
-        });
+        client.zadd("chat",JSONmessage.time,message);
+        client.zremrangebyscore("chat", Date.now()-21600000,Date.now()-21599999)
     });
+    socket.on("get message", ()=>{
+        client.zrange(["chat", "0", "-1"],function(rangeError, rangeResponse) {
+            if (rangeError) throw rangeError;
+            rangeResponse.map((chatMessage)=>socket.emit("send message",JSON.parse(chatMessage)))
+        });
+    })
 });
+
+
 
 
 

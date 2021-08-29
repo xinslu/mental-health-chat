@@ -28,12 +28,17 @@ export default class chat extends Component{
   render() {
     if (this.state.user){
       return (
-        <div>
-          <input className="input" placeholder="Type Message here" type="text" onChange={this.onTextboxChangeMessage} style={{position:"fixed", bottom:`2px`, width: `90%`, height: `5%`}}/><br />
-          <button type="submit" onClick={this.onSubmit} className="button" style={{position:"fixed", bottom:`2px`, left: `90%`, width: `10%`, height: `5%`}}><i className="fas fa-angle-right" /></button><br />
+        <div id="MainCanvas" style={{display: `flex`, overflow: 'hidden'}}>
+          <div style={{opacity: `100%`,width: `100%`, position: "fixed", bottom:`4px`, zIndex: `9999`, backgroundColor: `#FFFFFF`}}>
+              <form onSubmit={this.onSubmit}>
+                <input className="input" placeholder="Type Message here" id="message" type="text" onChange={this.onTextboxChangeMessage} value={this.state.message} style={{position: "fixed", bottom:`4px`,width: `85%`, height: `5%`,marginLeft: `1%`}}/>
+              </form>
+              <button type="submit" className="button is-info" style={{left: `88%`, width: `10%`, height: `5%`}}>Submit</button><br />
+          </div>
+          <div style={{heigth: '80%', width: '100%',paddingBottom: `1%`}}>
           {this.state.messages.map((message, i) => (
-          <div style={{heigth: '100%', width: '100%', paddingLeft: `1%`, paddingRight: `1%` }}>
-            <p style={{textAlign: (message.user===this.state.user) ? 'left' : 'right'}}>
+          <div style={{heigth: '100%', paddingLeft: `1%`, paddingRight: `1%`, paddingBottom: `1%`, zIndex: `9998` }}>
+            <p style={{textAlign: (message.user===this.state.user) ? 'right' : 'left'}}>
             <p className="has-text-weight-light" style={{color: "#CCCCCC", fontSize: `11px`}}>{message.user}</p>
               <span className={(message.user===this.state.user)? ("tag is-medium is-info") : ("tag is-medium is-success")} style={{width: "fit-content"}}>
                   {message.message}
@@ -42,6 +47,7 @@ export default class chat extends Component{
             <br />
           </div>
           ))}
+        </div>
         </div>
       );
     }else{
@@ -64,22 +70,24 @@ export default class chat extends Component{
   }
 
   onSubmit(event){
+    console.log("in submit")
     event.preventDefault();
-    socket.send(JSON.stringify({
+    socket.emit("message", JSON.stringify({
       time: Date.now(),
       user: this.state.user,
       message: this.state.message
     }))
+    this.state.message=""
   }
 
   componentDidMount(){
+    socket.emit("get message")
     socket.on('send message',(message)=>{
-        this.setState({
-          messages: [...this.state.messages,message]
-        })
+      this.setState({
+      messages: [...this.state.messages,message]
+      })
     })
     socket.on("connect_error", (err) => {
-      console.log('in error')
       console.log(`connect_error due to ${err}`);
     })
   }

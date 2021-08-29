@@ -1,6 +1,6 @@
 import React, { Component, useState } from 'react';
-import chat from "./chat.js"
-import {Redirect} from "react-router-dom"
+import chat from "./chat.js";
+import {Redirect} from "react-router-dom";
 
 export default class home extends Component{
     constructor(props){
