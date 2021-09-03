@@ -1,6 +1,7 @@
 const express = require("express");
 const cors=require('cors')
 const bodyParser = require('body-parser')
+const dotenv=require("dotenv")
 const app = express();
 app.use(cors())
 app.use(bodyParser.json())
@@ -11,10 +12,10 @@ const http = require("http");
 const socketio = require("socket.io");
 const redis = require("redis");
 const server = http.createServer(app);
-const {registerUser}=require("./controller/register")
-const {signin}=require("./controller/signin")
-const {verify}=require('./controller/verify')
-const {logout}=require('./controller/logout')
+const {registerUser}=require("./controllers/register")
+const {signin}=require("./controllers/signin")
+const {verify}=require('./controllers/verify')
+const {logout}=require('./controllers/logout')
 const io = socketio(server).listen(server, {
     cors: {
         origin: "http://localhost:3000",
@@ -53,10 +54,10 @@ io.on("connection", (socket) => {
     })
 });
 
-
+dotenv.config();
 const start = async () => {
   try {
-    await connectDB("mongodb+srv://linxdoom:kinshuk091902@login-signup.rxyoh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    await connectDB(process.ENV.MONGO_URI)
     server.listen(process.env.PORT || port, console.log(`Server is listening on port ${port}...`))
   } catch (error) {
     console.log(error)
@@ -64,10 +65,10 @@ const start = async () => {
 }
 
 
-server.post('/signup',registerUser)
-server.post('/login',signin)
-server.get('/verify',verify)
-server.get('/logout',logout)
+app.post('/signup',registerUser)
+app.post('/login',signin)
+app.get('/verify',verify)
+app.get('/logout',logout)
 start()
 
 
