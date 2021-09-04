@@ -6,7 +6,9 @@ const registerUser=(req,res,next)=>{
     const {firstName,
         lastName,
         email,
+        userName,
         password}=body;
+    console.log(req.body)
         if (!firstName){
             return res.status(400).send({
                 success: false,
@@ -17,6 +19,12 @@ const registerUser=(req,res,next)=>{
            return res.status(400).send({
                 success: false,
                 message: 'Error: Last Name cannot be blank.'
+            })
+        }
+        if (!userName){
+           return res.status(400).send({
+                success: false,
+                message: 'Error: User Name cannot be blank.'
             })
         }
         if (!email){
@@ -46,6 +54,7 @@ const registerUser=(req,res,next)=>{
                 newUser.email=emailLower;
                 newUser.firstName=firstName;
                 newUser.lastName=lastName;
+                newUser.userName=userName;
                 const savedUser= await newUser.save()
                 return res.status(201).send({
                     success: true,

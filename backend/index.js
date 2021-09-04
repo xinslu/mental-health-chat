@@ -8,10 +8,9 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 const connectDB = require('./database/db')
 const PORT = 5000;
-const http = require("http");
+var server= app.listen(process.env.PORT || PORT ,console.log(`http://localhost:5000/`))
 const socketio = require("socket.io");
 const redis = require("redis");
-const server = http.createServer(app);
 const {registerUser}=require("./controllers/register")
 const {signin}=require("./controllers/signin")
 const {verify}=require('./controllers/verify')
@@ -19,7 +18,8 @@ const {logout}=require('./controllers/logout')
 const io = socketio(server).listen(server, {
     cors: {
         origin: "http://localhost:3000",
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
+        credentials: true
     }
 });
 const client = redis.createClient({host: process.env.REDIS_HOST || '127.0.0.1', port: 6379});
@@ -54,11 +54,10 @@ io.on("connection", (socket) => {
     })
 });
 
-dotenv.config();
+dotenv.config()
 const start = async () => {
   try {
-    await connectDB(process.ENV.MONGO_URI)
-    server.listen(process.env.PORT || port, console.log(`Server is listening on port ${port}...`))
+    await connectDB(process.env.MONGO_URI)
   } catch (error) {
     console.log(error)
   }
