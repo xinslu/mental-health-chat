@@ -6,6 +6,7 @@ import {
 } from '../utils/storage/storage.js';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Link } from "react-router-dom";
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
@@ -17,7 +18,7 @@ export default class SignUp extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: false,
       token: '',
       signUpError: '',
       signUpEmail: '',
@@ -87,8 +88,8 @@ export default class SignUp extends Component {
 
       if (!token){
         return (
-          <div style={{ display: 'flex',backgroundColor: "#007FFF", alignItems: 'center', height: `100vh`, width:`100%`}}>
-            <form style={{display: `flex`, backgroundColor: `#FFFFFF`, flexDirection: `column`, width: `50%`, justifyContent: `center`, height: `100%`, paddingLeft: `2%`, boxShadow: `0 0 6px 0 rgba(0, 0, 0, 2)`, paddingRight: `1%`}}>
+          <div style={{ display: 'flex',backgroundColor: "#007FFF", alignItems: 'center',  height: `100vh`, width:`100%`}}>
+            <form style={{display: `flex`, backgroundColor: `#FFFFFF`, flexDirection: `column`, marginLeft: `50%`, width: `50%`, justifyContent: `center`, height: `100%`, paddingLeft: `2%`, boxShadow: `0 0 6px 0 rgba(0, 0, 0, 2)`, paddingRight: `1%`}}>
               <h3 className="title is-3" style={{textAlign: `center`}}>Sign Up</h3>
               <div class="field"><p className="help is-danger">*Required</p></div>
               {(!emailError && !passwordError && !firstNameError && ! userNameError)? (<p className="help is-danger">{signUpError}</p>):(null)}
@@ -131,14 +132,12 @@ export default class SignUp extends Component {
               {(passwordError)? (<p className="help is-danger">Cannot be blank</p>):(null)}</div>
 
               <div class="field mt-5" style={{justifyContent: 'center'}}><button type="button" className={buttonClassName} onClick={this.onSignUp} style={{width: `70%`,left: `15%`}}>Sign Up</button></div>
+              <div style={{display: 'flex', alignText: 'center', justifyContent: 'center', alignItems: 'center'}}><p className="label mb-5" style={{fontWeight: "normal"}}>Already Have an account? <Link to="/login">Login!</Link></p></div>
             </form>
           </div>
           )
       }else{
-        return this.props.history.push({
-            pathname: '/chat',
-            state: { user: this.state.userName}
-        });
+        return (<Redirect to="/chat" />)
       }
     };
 
@@ -242,7 +241,7 @@ export default class SignUp extends Component {
       const obj = getFromStorage('SESS_ID');
       if (obj && obj.token) {
         const { token } = obj;
-        const res= await fetch('https://twitake.herokuapp.com/verify?token=' + token)
+        const res= await fetch('http://localhost:5000/verify?token=' + token)
         const jsonData=await res.json()
         if (jsonData.success) {
           this.setState({

@@ -8,13 +8,13 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 const connectDB = require('./database/db')
 const PORT = 5000;
-var server= app.listen(process.env.PORT || PORT ,console.log(`http://localhost:5000/`))
-const socketio = require("socket.io");
-const redis = require("redis");
 const {registerUser}=require("./controllers/register")
 const {signin}=require("./controllers/signin")
 const {verify}=require('./controllers/verify')
 const {logout}=require('./controllers/logout')
+var server= app.listen(process.env.PORT || PORT ,console.log(`http://localhost:5000/`))
+const socketio = require("socket.io");
+const redis = require("redis");
 const io = socketio(server).listen(server, {
     cors: {
         origin: "http://localhost:3000",

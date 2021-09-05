@@ -17,7 +17,8 @@ const verify=(req,res,next)=>{
                     success: true,
                     message: 'Verified Token',
                     firstName: user.firstName,
-                    lastName: user.lastName
+                    lastName: user.lastName,
+                    userName: user.userName
                     })
                 }
         }catch(error){

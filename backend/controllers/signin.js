@@ -46,7 +46,8 @@ const signin=(req,res,next)=>{
                     message: "Successful login",
                     token: savedUser._id,
                     firstName: user.firstName,
-                    lastName: user.lastName
+                    lastName: user.lastName,
+                    userName: user.userName
                 })
             }catch(error){
                 res.status(400).send({
